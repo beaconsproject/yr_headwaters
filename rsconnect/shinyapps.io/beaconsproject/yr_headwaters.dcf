@@ -1,0 +1,10 @@
+name: yr_headwaters
+title:
+username: beaconsproject
+account: beaconsproject
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 12147215
+bundleId:
+url: https://beaconsproject.shinyapps.io/yr_headwaters/
+version: 1
