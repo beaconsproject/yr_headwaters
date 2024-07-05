@@ -9,12 +9,13 @@ library(shinydashboard)
 options(shiny.maxRequestSize=100*1024^2) 
 
 
-bnd <- st_read('www/yr_headwaters_4326.gpkg', 'watersheds', quiet=TRUE)
+#bnd <- st_read('www/yr_headwaters_4326.gpkg', 'watersheds', quiet=TRUE)
 x <- st_read('www/yr_headwaters_4326.gpkg', 'watersheds', quiet=TRUE)
-streams <- st_read('www/yr_headwaters_4326.gpkg', 'streams', quiet=TRUE)
+#streams <- st_read('www/yr_headwaters_4326.gpkg', 'streams', quiet=TRUE)
 #streams <- st_read('www/yr_headwaters_4326.gpkg', 'streams_50k', quiet=TRUE)
-intact <- st_read('www/yr_headwaters_4326.gpkg', 'intactness', quiet=TRUE)
-indicators <- c('intact_pct','forest_pct','precip_mean','elev_mean','elev_max','slope_mean','slope_max')
+#intact <- st_read('www/yr_headwaters_4326.gpkg', 'intactness', quiet=TRUE)
+#indicators <- c('intact_pct','forest_pct','precip_mean','elev_mean','elev_max','slope_mean','slope_max')
+indicators <- names(x)[6:30]
 
 # Define UI for application
 ui = dashboardPage(skin = "green",
@@ -68,17 +69,17 @@ server <- function(input, output, session) {
     m <- leaflet(options = leafletOptions(attributionControl=FALSE)) %>%
       addProviderTiles("Esri.WorldImagery", group="Esri.WorldImagery") %>%
       addProviderTiles("Esri.WorldTopoMap", group="Esri.WorldTopoMap") %>%
-      addPolygons(data=bnd, stroke=T, weight=2, fillOpacity=0, group='Boundary') %>%
+      #addPolygons(data=bnd, stroke=T, weight=2, fillOpacity=0, group='Boundary') %>%
       addPolygons(data=x, stroke=T, weight=1, color='black', fillColor=~pal(i),
         fillOpacity=input$alpha, layerId=x$HYBAS_ID, group='Watersheds', label=x$Station) %>%
-      addPolygons(data=intact, stroke=F, fillColor='darkgreen', fillOpacity=input$alpha, group='Intactness') %>%
-      addPolylines(data=streams, weight=1, color='blue', group='Streams') %>%
+      #addPolygons(data=intact, stroke=F, fillColor='darkgreen', fillOpacity=input$alpha, group='Intactness') %>%
+      #addPolylines(data=streams, weight=1, color='blue', group='Streams') %>%
       addStaticLabels(data=x, label = x$Station, group='Watershed labels') %>% 
       addLayersControl(position = "topright",
         baseGroups=c("Esri.WorldTopoMap", "Esri.WorldImagery"),
-        overlayGroups = c("Boundary","Watersheds", "Watershed labels","Streams","Intactness"),
+        overlayGroups = c("Watersheds", "Watershed labels"),
         options = layersControlOptions(collapsed = FALSE)) %>%
-      hideGroup(c('Boundary','Watershed labels','Streams','Intactness')) %>%
+      hideGroup(c('Watershed labels')) %>%
       addLegend(pal=pal, values=i , opacity=0.7, title=input$field, position="bottomright")
    })
 
@@ -98,7 +99,7 @@ server <- function(input, output, session) {
     if(!is.null(click$id)) {
       output$table2 = renderDT({
         xt <- t(selected)
-        datatable(xt, rownames=T, options=list(dom = 'tip', scrollX = TRUE, scrollY = TRUE, pageLength = 15), class="compact")
+        datatable(xt, rownames=T, options=list(dom = 'tip', scrollX = TRUE, scrollY = TRUE, pageLength = 20), class="compact")
       }) 
     } 
   }) 
