@@ -1,6 +1,6 @@
 ## YR Headwaters
 
-July 4, 2024
+July 5, 2024
 
 The YR Headwaters app is a simple Shiny app that enables users to visualize various statistics summarized at the watershed level.
 
