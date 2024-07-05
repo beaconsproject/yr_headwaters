@@ -4,7 +4,7 @@ username: beaconsproject
 account: beaconsproject
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
-appId: 12147215
-bundleId:
+appId: 12276920
+bundleId: 8826340
 url: https://beaconsproject.shinyapps.io/yr_headwaters/
 version: 1

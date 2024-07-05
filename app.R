@@ -4,6 +4,7 @@ library(sf)
 library(dplyr)
 library(DT)
 library(leafem)
+library(markdown)
 library(shinydashboard)
 options(shiny.maxRequestSize=100*1024^2) 
 
@@ -11,20 +12,22 @@ options(shiny.maxRequestSize=100*1024^2)
 bnd <- st_read('www/yr_headwaters_4326.gpkg', 'watersheds', quiet=TRUE)
 x <- st_read('www/yr_headwaters_4326.gpkg', 'watersheds', quiet=TRUE)
 streams <- st_read('www/yr_headwaters_4326.gpkg', 'streams', quiet=TRUE)
-#streams <- st_read('.www/yr_headwaters_4326.gpkg', 'streams_50k', quiet=TRUE)
+#streams <- st_read('www/yr_headwaters_4326.gpkg', 'streams_50k', quiet=TRUE)
 intact <- st_read('www/yr_headwaters_4326.gpkg', 'intactness', quiet=TRUE)
 indicators <- c('intact_pct','forest_pct','precip_mean','elev_mean','elev_max','slope_mean','slope_max')
 
 # Define UI for application
 ui = dashboardPage(skin = "green",
-  dashboardHeader(title = "YR Headwaters"),
+  dashboardHeader(title = "Watershed Explorer"),
   dashboardSidebar(
     sidebarMenu(id="tabs",
       menuItem("View indicators", tabName = "get", icon = icon("th")),
       selectInput("field", "Indicator:", choices=indicators),
       selectInput("type", "Legend type:", choices=c('Numeric','Bin','Quantile','Factor'), selected='Numeric'),
       selectInput("fill", "Color:", choices=c('YlOrRd','Oranges','Reds','Blues','Greens','Dark2'), selected='YlOrRd'),
-      sliderInput("alpha", label = "Opacity:", min = 0, max = 1, value = 0.5)
+      sliderInput("alpha", label = "Opacity:", min = 0, max = 1, value = 0.5),
+      hr(),
+      div(style="position:relative; left:calc(6%);", downloadButton("downloadData", "Download geopackage", style='color: #000'))
       )
       ),
   dashboardBody(
@@ -33,7 +36,8 @@ ui = dashboardPage(skin = "green",
         fluidRow(
           tabBox(id = "one", width="8", 
             tabPanel("Layer", leafletOutput("map", height=750)),
-            tabPanel("Attributes", DTOutput("table", height=750))),
+            tabPanel("Attributes", DTOutput("table", height=750)),
+            tabPanel("Help", includeMarkdown("www/help.md"))),
           tabBox(id = "two", width="4", 
             tabPanel("Indicators", DTOutput("table2", height=750)))
         )        
@@ -98,6 +102,17 @@ server <- function(input, output, session) {
       }) 
     } 
   }) 
+  
+  # Save features to a geopackage
+  output$downloadData <- downloadHandler(
+    filename = function() { paste("yr_headwaters-", Sys.Date(), ".gpkg", sep="") },
+    content = function(file) {
+        showModal(modalDialog("Downloading...", footer=NULL))
+        on.exit(removeModal())
+        y <- st_transform(x, 3578)
+        st_write(y, dsn=file, layer='watersheds')
+    }
+  )
 
 }
 
