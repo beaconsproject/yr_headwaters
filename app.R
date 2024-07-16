@@ -5,9 +5,12 @@ library(dplyr)
 library(DT)
 library(leafem)
 library(markdown)
+library(leaflet.esri)
 library(shinydashboard)
 options(shiny.maxRequestSize=100*1024^2) 
 
+spot = "https://mapservices.gov.yk.ca/imagery/rest/services/Satellites/Satellites_MedRes_Update/ImageServer"
+google = "https://mts1.google.com/vt/lyrs=s&hl=en&src=app&x={x}&y={y}&z={z}&s=G"
 
 #bnd <- st_read('www/yr_headwaters_4326.gpkg', 'watersheds', quiet=TRUE)
 x <- st_read('www/yr_headwaters_4326.gpkg', 'watersheds', quiet=TRUE)
@@ -67,8 +70,11 @@ server <- function(input, output, session) {
     #lapply(htmltools::HTML)
     
     m <- leaflet(options = leafletOptions(attributionControl=FALSE)) %>%
+      addTiles(google, group="Google.Imagery") %>%
+      addEsriImageMapLayer(url=spot, group="SPOT.Imagery") %>%
       addProviderTiles("Esri.WorldImagery", group="Esri.WorldImagery") %>%
       addProviderTiles("Esri.WorldTopoMap", group="Esri.WorldTopoMap") %>%
+      addScaleBar(position='bottomleft') %>%
       #addPolygons(data=bnd, stroke=T, weight=2, fillOpacity=0, group='Boundary') %>%
       addPolygons(data=x, stroke=T, weight=1, color='black', fillColor=~pal(i),
         fillOpacity=input$alpha, layerId=x$HYBAS_ID, group='Watersheds', label=x$Station) %>%
@@ -76,7 +82,7 @@ server <- function(input, output, session) {
       #addPolylines(data=streams, weight=1, color='blue', group='Streams') %>%
       addStaticLabels(data=x, label = x$Station, group='Watershed labels') %>% 
       addLayersControl(position = "topright",
-        baseGroups=c("Esri.WorldTopoMap", "Esri.WorldImagery"),
+        baseGroups=c("Esri.WorldTopoMap","Esri.WorldImagery","Google.Imagery","SPOT.Imagery"),
         overlayGroups = c("Watersheds", "Watershed labels"),
         options = layersControlOptions(collapsed = FALSE)) %>%
       hideGroup(c('Watershed labels')) %>%
