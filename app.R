@@ -18,7 +18,7 @@ x <- st_read('www/yr_headwaters_4326.gpkg', 'watersheds', quiet=TRUE)
 #streams <- st_read('www/yr_headwaters_4326.gpkg', 'streams_50k', quiet=TRUE)
 #intact <- st_read('www/yr_headwaters_4326.gpkg', 'intactness', quiet=TRUE)
 #indicators <- c('intact_pct','forest_pct','precip_mean','elev_mean','elev_max','slope_mean','slope_max')
-indicators <- names(x)[6:30]
+indicators <- names(x)[6:51]
 
 # Define UI for application
 ui = dashboardPage(skin = "green",
